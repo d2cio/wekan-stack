@@ -1,0 +1,50 @@
+version: '1.0'
+services:
+  - name: mongodb
+    type: mongodb
+    version: 4.0
+    configuration: StandAlone
+    ports:
+      - 27017
+    remoteAccess: false
+    volumes:
+      - directory: /dump
+    deployTo:
+      - wekan
+
+  - name: wekan
+    type: docker
+    image: quay.io/wekan/wekan
+    version: latest
+    ports:
+      - 8080
+    env:
+      MONGO_URL: "mongodb://{{=service('mongodb').getMasterAlias()}}:27017/wekan"
+      ROOT_URL: "http://{{=service('wekan').getNginxDomain()}}"
+      MAIL_URL: null
+      MAIL_FROM: null
+      WITH_API: true
+      BROWSER_POLICY_ENABLED: true
+    comments:
+      env:
+        MAIL_URL: "smtp://user:pass@mailserver.example.com:25/"
+        MAIL_FROM: "'Example Wekan Support <support@example.com>'"
+    deployTo:
+      - wekan
+
+  - name: proxy
+    type: nginx
+    version: 1.15
+    ports:
+      - 80
+      - 443
+    serviceFiles:
+      - name: wekan
+    deployTo:
+      - wekan
+
+hosts:
+  - name: wekan
+    requirements:
+      cores: 1
+      memory: 1

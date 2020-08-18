@@ -2,7 +2,7 @@ version: '1.0'
 services:
   - name: mongodb
     type: mongodb
-    version: 4.0
+    version: 4.2
     configuration: StandAlone
     ports:
       - 27017
@@ -34,7 +34,7 @@ services:
 
   - name: proxy
     type: nginx
-    version: 1.15
+    version: 1.17
     ports:
       - 80
       - 443
